@@ -2,6 +2,7 @@ import os
 import subprocess
 import wx
 import time
+import shutil
 
 # currently saves file where this file/exe is located
 # cool future thing could be to find a way to make the 
@@ -123,6 +124,29 @@ class MyFrame(wx.Frame):
             wx.Yield()
             cmd = 'PyInstaller --onefile "'+self.new_path+'"'
             subprocess.call(cmd)
+
+            path_list = self.new_path.split("/")
+            move_from_here = os.getcwd()
+            save_location = ""
+            folders_to_move = []
+
+            i = 0
+            for e in path_list:
+                if(e[-3:] == ".py"):
+                    del path_list[i]
+                else:
+                    save_location = save_location + e + "/"
+                i += 1
+            for dir in os.listdir(move_from_here):
+                if(dir.endswith("dist") or dir.endswith("build") or dir.endswith(".spec")):
+                    folders_to_move.append(os.path.realpath(dir))
+            for dir in folders_to_move:
+                shutil.move(dir, save_location)
+            
+            print(save_location)
+            print(move_from_here)
+            print(folders_to_move)
+
             self.text.SetLabel("Executable made Successfully!\nGo back to make another")
             self.yesButton.Show(False)
             self.text_box.Show(False)
@@ -135,8 +159,8 @@ class MyFrame(wx.Frame):
             self.text2.Show(False)
             self.backButton.Show()
             self.sizer.Layout()
-
         self.sizer.Layout()
+
 
 if __name__ == '__main__':
     app = wx.App()
